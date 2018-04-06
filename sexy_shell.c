@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sexy_shell.h"
+#include "include/sexy_shell.h"
 
 int main(int argc, char* *argv) {
 	
@@ -23,6 +23,7 @@ int main(int argc, char* *argv) {
 		printf("%s ", token);
 		token = strtok(NULL, delim);
 	}
+	printf("\n");
 
 	return 1;
 }
