@@ -1,9 +1,10 @@
 //Unix Group 12 Project 3 - Linux Sexy Shell
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "include/sexy_shell.h"
 
 int main(int argc, char* *argv) {
@@ -23,7 +24,32 @@ int main(int argc, char* *argv) {
 		printf("%s ", token);
 		token = strtok(NULL, delim);
 	}
+
 	printf("\n");
 
 	return 1;
+}
+
+void pwd() {
+
+	char buffer[4096];
+	if(getcwd(buffer, sizeof(buffer)) != NULL){
+		printf("%s\n", buffer);
+	}
+}
+
+void mycat() {
+
+}
+
+void mycp() {
+
+}
+
+void myls() {
+
+}
+
+void mycd() {
+
 }
