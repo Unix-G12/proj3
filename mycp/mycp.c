@@ -11,7 +11,7 @@
 int copy(char *src, char *dest) {
 	
 	char buffer[BUFFER];
-	int fin, fout, charCount
+	int fin, fout, charCount;
 	int fout;
 	int charCount;
 	int hold;
