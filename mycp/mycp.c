@@ -5,15 +5,15 @@
 #include <sys/types.h>
 #include <sys/stats.h>
 #include <fcntl.h>
-
+#include <unistd.h> //Header needed to use system call
 #define BUFFER 1024
 
 int copy(char *src, char *dest) {
 	
 	char buffer[BUFFER];
 	int fin, fout, charCount;
-	int fout;
-	int charCount;
+	//int fout;
+	//int charCount;
 	int hold;
 	
 	fin = open(src, O_RDONLY);  //open and set to read only
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 			src = argv[1];
 			dest = argv[2];
 			copy(src, dest);
-			PRINTF("FILE COPIED\n");
+			printf("FILE COPIED\n");
 		}
 	}
 	return 0;	
