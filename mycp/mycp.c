@@ -22,7 +22,7 @@ int copy(char *src, char *dest) {
 		exit(EXIT_FAILURE);
 	}
 	
-	fout = open(dest, O_WRONLY | O_CREATE); //open and set to read only, creates if file DNE
+	fout = open(dest, O_WRONLY | O_CREAT); //open and set to read only, creates if file DNE
 	if(fout == -1) {
 		printf("DESTINATION FILE CAN NOT BE OPENED\n");
 		exit(EXIT_FAILURE);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 		else {
 			src = argv[2];
 			dest = argv[3];
-			recursion(src, dest);
+			//recursion(src, dest);
 			printf("DIRECTORY COPIED\n");
 		}	
 	}
