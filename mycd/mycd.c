@@ -81,7 +81,7 @@ void mycd(char *argument) {
               oldPath = resize; //resize
           } 
         }
-printf("Before temp alloccation\n"); 
+printf("Before temp allocation\n"); 
         tempPath = malloc(size); //allocate temporary array to size of old path
 printf("Size: %d\n", sizeof(tempPath));
         tempPath = "";
