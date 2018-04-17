@@ -87,7 +87,7 @@ printf("Size: %d\n", sizeof(tempPath));
         tempPath = "";
 printf("Before loop\n");
         while(j < oldCount - 1) {
-          strncat(tempPath, oldPath[j], strlen(oldPath[j])); //ERROR: Segmentation fault
+          strcat(tempPath, oldPath[j]); //ERROR: Segmentation fault
 printf("In loop %d\n", j);
 printf("String: %s\n", oldPath[j]);
           if(j < oldCount - 2)
