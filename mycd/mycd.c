@@ -2,10 +2,27 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
-void cd(char** argument) {
-  if(argument[1] == NULL)
+int cd(char* argument) {
+  if(argument == NULL) {
     printf("Expected argument\n");
-  else if(chdir(argument[1]) != 0)
-    perror("Error");
+    exit(1);
+  }
+  
+  const int MAX = 4096;
+  char path[MAX];
+  char cwd[MAX + 1];
+
+  strcpy(path, argument);
+
+  if(path[0] != '/') {
+    getcwd(cwd, sizeof(cwd));
+    strcat(cwd, "/");
+    strcat(cwd, path);
+    chdir(cwd);
+  }
+  else
+    chdir(path);
+  exit(0);
 }
