@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <string.h>
 
-int cd(char* argument) {
+void mycd(char* argument) {
   if(argument == NULL) {
     printf("Expected argument\n");
     exit(1);
