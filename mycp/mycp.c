@@ -55,19 +55,17 @@ int copy(char *src, char *dest) {
         printf("error!\n");   
         return 0;   
     }
-	//fin = open(src, O_RDONLY);  //open and set to read only
-    if( (fin = open(src, O_RDONLY)) == -1){   
+
+    if( (fin = open(src, O_RDONLY)) == -1){   //open and set to read only 
 		printf("SOURCE FILE CAN NOT BE OPENED\n");
 		return 0;
-		//exit(EXIT_FAILURE);
 	}
 	
-	//fout = open(dest, O_WRONLY | O_CREAT); //open and set to read only, creates if file DNE
-    if( (fout = creat(dest, mode.st_mode)) == -1){   
+
+    if( (fout = creat(dest, mode.st_mode)) == -1){    //open and set to read only, creates if file DNE
 		printf("DESTINATION FILE CAN NOT BE OPENED\n");
 		close(fin);
 		return 0;
-		//exit(EXIT_FAILURE);
 	}	
 
 	if(fchmod(fout, mode.st_mode) == -1){   
@@ -78,21 +76,15 @@ int copy(char *src, char *dest) {
 	charCount = read(fin, buffer, BUFSIZ);
 	while(charCount > 0) { //copies the directory or file
 		if(write(fout, buffer, charCount) != charCount) {
-			printf("CAN NOT WRTIE TO DESTINATION\n");
+			printf("CAN NOT WRITE TO DESTINATION\n");
 			close(fin);
 			close(fout);
 			return 0;
-			//exit(EXIT_FAILURE);
 		}
 	}
 	close(fin);
 	close(fout);
 	return 1;
-		/*if(charCount == -1) {
-			printf("CAN NOT READ FROM SOURCE\n");
-			exit(EXIT_FAILURE);			
-		}
-	}
 	
 	if(close(fin) == -1) {
 		printf("CAN NOT CLOSE SOURCE\n");
@@ -102,16 +94,12 @@ int copy(char *src, char *dest) {
 		printf("CAN NOT CLOSE DESTINATION\n");
 		exit(EXIT_FAILURE);			
 	}
-	return 1;*/
-	
-	
-	
+	return 1;	
 	
 	/********************** Original Code:********************
 	char buffer[BUFSIZ];
 	int fin, fout, charCount;
 	//struct stat old_mode;
-
 	//int fout;
 	//int charCount;
 	//int hold;
@@ -256,4 +244,3 @@ int main(int argc, char *argv[]) {
 	return 0;
 	**************************************/	
 }
-
