@@ -1,3 +1,9 @@
+/*
+-R If source_file designates a directory, cp copies the directory and the entire subtree 
+connected at that point. If the source_file] ends in a /, the contents of the directory 
+are copied rather than the directory itself. 
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
