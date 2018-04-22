@@ -83,8 +83,13 @@ void recursion(const char *src, const char *dest) {
 */
 
 int main(int argc, char *argv[]) {
-		
-	char *src;
+    if(argc != 3) {   
+        printf("usage: source destination \n ", argv[0]);   
+        return -1;   
+    }   
+    copy(argv[1], argv[2]);  
+	return 0;			
+	/*char *src;
 	char *dest;
 		
 	if(strncmp(argv[1], "-R", 5) != 0) { //checks if there are too many args for recursion
@@ -119,6 +124,6 @@ int main(int argc, char *argv[]) {
 			printf("FILE COPIED\n");
 		}
 	}
-	return 0;	
+	return 0;*/	
 }
 
