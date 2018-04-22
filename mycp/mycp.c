@@ -9,30 +9,105 @@ are copied rather than the directory itself.
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-//#include <sys/stats.h>
+#include <sys/stat.h> // For struct status
 #include <fcntl.h>
 #include <unistd.h> //Header needed to use system call
+#include<dirent.h> // closedir, DIR, opendir
+
 //#define BUFFER 1024 , using BUFSIZ instead
 
 /* Function to get the name of the file or directory */
-void getName(char *bf, char *name)   
+void getName(char *bff, char *name)   
 {   
     int i, j;   
-    int n = strlen(bf);  
+    int n = strlen(bff);  
     for(i = n - 1; i >=0 ; i--){   
-        if(bf[i]=='/'){   
+        if(bff[i]=='/'){   
             break;   
         }   
     }   
     for(i++, j = 0; i < n; i++, j++)   
-        name[j] = bf[i];   
+        name[j] = bff[i];   
     name[j] = '\0';   
 } 
 
-
+/* Check if its a directory or a file */
+int dir(const char *path)   
+{   
+    struct stat bff;   
+    if(stat(path, &bff) == -1){   
+        printf("error!");   
+        return -1;   
+    }   
+    if((S_IFMT & bff.st_mode) == S_IFDIR) {   
+        return 1;   
+    }   
+    else   
+        return 0;   
+}   
 
 int copy(char *src, char *dest) {
+		char buffer[BUFSIZ];
+	int fin, fout, charCount;
+	struct stat mode;
+
+    if(stat(src, &mode) == -1){   
+        printf("error!\n");   
+        return 0;   
+    }
+	//fin = open(src, O_RDONLY);  //open and set to read only
+    if( (fin = open(src, O_RDONLY)) == -1){   
+		printf("SOURCE FILE CAN NOT BE OPENED\n");
+		return 0;
+		//exit(EXIT_FAILURE);
+	}
 	
+	//fout = open(dest, O_WRONLY | O_CREAT); //open and set to read only, creates if file DNE
+    if( (fout = creat(dest, mode.st_mode)) == -1){   
+		printf("DESTINATION FILE CAN NOT BE OPENED\n");
+		close(fin);
+		return 0;
+		//exit(EXIT_FAILURE);
+	}	
+
+	if(fchmod(fout, mode.st_mode) == -1){   
+        printf("copy(%s, %s), fchmod(%s) error!\n", src, dest, dest);   
+        return 0;   
+    }   
+	/* Read and write */
+	charCount = read(fin, buffer, BUFSIZ);
+	while(charCount > 0) { //copies the directory or file
+		if(write(fout, buffer, charCount) != charCount) {
+			printf("CAN NOT WRTIE TO DESTINATION\n");
+			close(fin);
+			close(fout);
+			return 0;
+			//exit(EXIT_FAILURE);
+		}
+	}
+	close(fin);
+	close(fout);
+	return 1;
+		/*if(charCount == -1) {
+			printf("CAN NOT READ FROM SOURCE\n");
+			exit(EXIT_FAILURE);			
+		}
+	}
+	
+	if(close(fin) == -1) {
+		printf("CAN NOT CLOSE SOURCE\n");
+		exit(EXIT_FAILURE);		
+	}
+	if(close(fout) == -1) {
+		printf("CAN NOT CLOSE DESTINATION\n");
+		exit(EXIT_FAILURE);			
+	}
+	return 1;*/
+	
+	
+	
+	
+	/********************** Original Code:********************
 	char buffer[BUFSIZ];
 	int fin, fout, charCount;
 	//struct stat old_mode;
@@ -74,22 +149,76 @@ int copy(char *src, char *dest) {
 		exit(EXIT_FAILURE);			
 	}
 	return 1;
+	*******************************************************/
 }
-/*
-void recursion(const char *src, const char *dest) {
-	
-	
+
+void recursion(const char *src, const char *dest){
+	char bffsrc[BUFSIZ]; /* Used to store the filepath of source */
+	char bffdest[BUFSIZ]; /* Used to store the filepath of destincation */
+	char name[BUFSIZ]; /* Used  for filename */
+	struct stat mode; 
+
+	int flag = dir(src); /* Create a flag to check directory/file */
+
+	strcpy(bffsrc, src);   /* Copy */
+    strcpy(bffdest, dest);  /* Copy  */
+
+     if(flag == 0){ /* If flag === file */
+     	getName(bffsrc, name);  /* Get the file name */   
+     	strcat(bffdest, "/"); /* Append src to dest */
+     	strcat(bffdest, name);    /* Append src to the end of dest */
+     	copy(bffsrc, bffdest);   
+     	return;
+     }
+     else if(flag == 1){
+     	getName(bffsrc, name); /* Get directory name*/
+        strcat(bffdest, "/");  /* concatenates bffdest and "/" and stores result in bffdest*/
+        strcat(bffdest, name); /* concatenates bffdest and "name" and stores result in bffdest*/
+
+        if(strcmp(name, ".") ==0 || strcmp(name, "..") ==0 ){ /* Compares the strings */
+        	return;
+        }
+        if(stat(src, &mode) == -1){
+        	printf("error!\n");   
+        	return;  
+        }
+        mkdir(bffdest, mode.st_mode); 
+        chmod(bffdest, mode.st_mode); 
+	     
+	/* Magic */
+        DIR * pdir =  opendir(bffsrc);   
+        struct dirent * pdirent;   
+
+        while(1){
+        	pdirent = readdir(pdir);
+        	if(pdirent == NULL){
+        		break;
+        	}
+        	else{
+        		strcpy(bffsrc, src);
+                strcat(bffsrc, "/");   
+                strcat(bffsrc, pdirent->d_name);   
+                copy(bffsrc, bffsrc); 
+        	}
+        }
+        closedir(pdir);
+        return;
+    }
+    else{
+    	return;
+    }
 }
-*/
 
 int main(int argc, char *argv[]) {
     if(argc != 3) {   
         printf("usage: source destination \n ", argv[0]);   
         return -1;   
     }   
-    copy(argv[1], argv[2]);  
+    recursion(argv[1], argv[2]);  
 	return 0;			
-	/*char *src;
+	
+	/************** Original Code ************************
+	char *src;
 	char *dest;
 		
 	if(strncmp(argv[1], "-R", 5) != 0) { //checks if there are too many args for recursion
@@ -124,6 +253,7 @@ int main(int argc, char *argv[]) {
 			printf("FILE COPIED\n");
 		}
 	}
-	return 0;*/	
+	return 0;
+	**************************************/	
 }
 
