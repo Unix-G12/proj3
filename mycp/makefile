@@ -4,7 +4,7 @@ CLFLAGS=
 all: mycp
 
 mycp: mycp.c
-	gcc $(CFLAGS) -o mycp mycp
+	gcc $(CFLAGS) mycp.c -o mycp
 
 clean:
 	rm mycp

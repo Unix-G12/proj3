@@ -9,18 +9,37 @@ are copied rather than the directory itself.
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/stats.h>
+//#include <sys/stats.h>
 #include <fcntl.h>
 #include <unistd.h> //Header needed to use system call
-#define BUFFER 1024
+//#define BUFFER 1024 , using BUFSIZ instead
+
+/* Function to get the name of the file or directory */
+void getName(char *bf, char *name)   
+{   
+    int i, j;   
+    int n = strlen(bf);  
+    for(i = n - 1; i >=0 ; i--){   
+        if(bf[i]=='/'){   
+            break;   
+        }   
+    }   
+    for(i++, j = 0; i < n; i++, j++)   
+        name[j] = bf[i];   
+    name[j] = '\0';   
+} 
+
+
 
 int copy(char *src, char *dest) {
 	
-	char buffer[BUFFER];
+	char buffer[BUFSIZ];
 	int fin, fout, charCount;
+	//struct stat old_mode;
+
 	//int fout;
 	//int charCount;
-	int hold;
+	//int hold;
 	
 	fin = open(src, O_RDONLY);  //open and set to read only
 	if(fin == -1) {
@@ -34,7 +53,7 @@ int copy(char *src, char *dest) {
 		exit(EXIT_FAILURE);
 	}	
 	
-	charCount = read(fin, buffer, BUFFER);
+	charCount = read(fin, buffer, BUFSIZ);
 	while(charCount > 0) { //copies the directory or file
 		if(write(fout, buffer, charCount) != charCount) {
 			printf("CAN NOT WRTIE TO DESTINATION\n");
