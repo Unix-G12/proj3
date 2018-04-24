@@ -18,9 +18,9 @@ struct stat getStats(const char *file, char *dir);
 void printStats(char *dir, char *file);
 static int compareLex(const void *p1, const void *p2);
 
-int main(int argc, char *argv[]){
+int main_ls(char* cmd){
 
-	int opt;
+	/*int opt;
 	while ((opt = getopt(argc, argv, "la")) != -1) {
 		switch (opt) {
 			case 'l':
@@ -28,14 +28,18 @@ int main(int argc, char *argv[]){
 				break;
 			case 'a':
 				opt_a = true;
-				//printf("Option 'a' is on");
 				break;
 			case '?':
-				perror("At least one option is not a valit option for myls in Sexy Shell ;)\n");
+				perror("At least one option is not a valid option for myls in Sexy Shell ;)\n");
 				return -1;
 				//exit(EX_USAGE);
 		}
+	}*/
+	if (strstr(cmd, "-l")){
+		opt_l = true;
 	}
+
+
 	char *dir = ".";
 	DIR *dirPtr = opendir(dir);
 	struct dirent *direntPtr = readdir(dirPtr);
@@ -64,6 +68,7 @@ int main(int argc, char *argv[]){
 	free(dirArray);
 }
 
+//Alphabetically sort output
 static int compareLex(const void *p1, const void *p2) {
 	const char *str1 = *(const void **)p1;
 	const char *str2 = *(const void **)p2;
