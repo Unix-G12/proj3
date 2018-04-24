@@ -5,9 +5,11 @@
 #include <err.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "include/mycat.h"
 
-void cat (rf)
 int rf; /* Reading file descriptor */
+
+void cat (int rf)
 {
 	int wf; /* writing file descriptor */
 	static char *buffer;
@@ -42,27 +44,26 @@ int rf; /* Reading file descriptor */
 	}
 }
 
-int main (int argc, char *argv[]){
-
+int main_cat (char* cmd){
 	int fd;  /* File descriptor */
-	++argv; /* skip the first argument */
+	//cmd; /* skip the first argument */
 	fd = fileno(stdin);
-	do{
-		if(*argv){
-			if (strcmp(*argv,"-") == 0){ /* if two strings match return 0 */
+	//do{
+		if(cmd){
+			if (strcmp(cmd,"-") == 0){ /* if two strings match return 0 */
 				fd = fileno(stdin); 
 			} else{
-			fd = open(*argv, O_RDONLY); /* Open file in read only mode */
+			fd = open(cmd, O_RDONLY); /* Open file in read only mode */
 			}
 			if(fd < 0){ 
-				err(1,"%s", *argv);
+				err(1,"%s", cmd);
 			}
-			++argv;
+			//cmd;
 		} 
 		cat(fd);
-	} 
-	while (*argv);
-	if (fd != fileno(stdin)){
-		close(fd); /* close file */
-	}
+	//} 
+	//while (cmd);
+	//if (fd != fileno(stdin)){
+	//	close(fd); /* close file */
+	//}
 }
