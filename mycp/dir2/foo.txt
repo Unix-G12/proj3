@@ -1,0 +1,2 @@
+Hello from foo!
+testing cp foo.txt dir2
