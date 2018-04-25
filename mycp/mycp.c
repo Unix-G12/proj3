@@ -1,81 +1,50 @@
-/*
--R If source_file designates a directory, cp copies the directory and the entire subtree 
-connected at that point. If the source_file] ends in a /, the contents of the directory 
-are copied rather than the directory itself. 
-*/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h> // For struct status
-#include <fcntl.h>
-#include <unistd.h> //Header needed to use system call
-#include<dirent.h> // closedir, DIR, opendir
-
-//#define BUFFER 1024 , using BUFSIZ instead
-
-/* Function to get the name of the file or directory */
-void getName(char *bff, char *name)   
-{   
-    int i, j;   
-    int n = strlen(bff);  
-    for(i = n - 1; i >=0 ; i--){   
-        if(bff[i]=='/'){   
-            break;   
-        }   
-    }   
-    for(i++, j = 0; i < n; i++, j++)   
-        name[j] = bff[i];   
-    name[j] = '\0';   
-} 
+#include<sys/stat.h>   
+#include<sys/types.h>   
+#include<unistd.h>   
+#include<fcntl.h>   
+#include<dirent.h>   
+#include<stdio.h>   
+#include<string.h>   
 
 /* Check if its a directory or a file */
-int dir(const char *path)   
-{   
-    struct stat bff;   
-    if(stat(path, &bff) == -1){   
-        printf("error!");   
-        return -1;   
+int type(const char *path){   
+    struct stat bf;   
+    if(stat(path, &bf) == -1){ 
+        printf("dir(%s), stat(%s) error!\n",path, path);   
+          return 0;   
     }   
-    if((S_IFMT & bff.st_mode) == S_IFDIR) {   
+    if((S_IFMT & bf.st_mode) == S_IFDIR) {   
         return 1;   
     }   
     else   
         return 0;   
-}   
+}
 
-int copy(char *src, char *dest) {
-		char buffer[BUFSIZ];
-	int fin, fout, charCount;
-	struct stat mode;
-
-    if(stat(src, &mode) == -1){   
-        printf("error!\n");   
-        return 0;   
+int copy(const char *src, const char *dest) {
+	int fin, fout, count;
+	char buffer[BUFSIZ];
+	struct stat old_mode;
+	if(stat(src, &old_mode) == -1){ 
+		printf("cp: (%s) : No such file or directory!\n",src);   
+		return 0;   
     }
 
-    if( (fin = open(src, O_RDONLY)) == -1){   //open and set to read only 
-		printf("SOURCE FILE CAN NOT BE OPENED\n");
+    /* Open input and output files */
+    if( (fin = open(src, O_RDONLY)) == -1){   
+        printf("cp:(%s, %s), stat(%s) error!\n", src, dest, src);   
 		return 0;
 	}
-	
-
-    if( (fout = creat(dest, mode.st_mode)) == -1){    //open and set to read only, creates if file DNE
-		printf("DESTINATION FILE CAN NOT BE OPENED\n");
+    if((fout = open(dest, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) == -1){
+        printf("cp:(%s, %s), can't open %s.\n", src, dest, src);   
 		close(fin);
 		return 0;
-	}	
+	}
 
-	if(fchmod(fout, mode.st_mode) == -1){   
-        printf("copy(%s, %s), fchmod(%s) error!\n", src, dest, dest);   
-        return 0;   
-    }   
-	/* Read and write */
-	charCount = read(fin, buffer, BUFSIZ);
-	while(charCount > 0) { //copies the directory or file
-		if(write(fout, buffer, charCount) != charCount) {
+	 /* Transfer data until we encounter end of input or an error */
+	//count = read(fin, buffer, BUFSIZ);
+    while((count = read(fin, buffer, BUFSIZ)) > 0){   
+		if(write(fout, buffer, count) != count) {
 			printf("CAN NOT WRITE TO DESTINATION\n");
 			close(fin);
 			close(fout);
@@ -85,96 +54,57 @@ int copy(char *src, char *dest) {
 	close(fin);
 	close(fout);
 	return 1;
-	
-	if(close(fin) == -1) {
-		printf("CAN NOT CLOSE SOURCE\n");
-		exit(EXIT_FAILURE);		
-	}
-	if(close(fout) == -1) {
-		printf("CAN NOT CLOSE DESTINATION\n");
-		exit(EXIT_FAILURE);			
-	}
-	return 1;	
-	
-	/********************** Original Code:********************
-	char buffer[BUFSIZ];
-	int fin, fout, charCount;
-	//struct stat old_mode;
-	//int fout;
-	//int charCount;
-	//int hold;
-	
-	fin = open(src, O_RDONLY);  //open and set to read only
-	if(fin == -1) {
-		printf("SOURCE FILE CAN NOT BE OPENED\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	fout = open(dest, O_WRONLY | O_CREAT); //open and set to read only, creates if file DNE
-	if(fout == -1) {
-		printf("DESTINATION FILE CAN NOT BE OPENED\n");
-		exit(EXIT_FAILURE);
-	}	
-	
-	charCount = read(fin, buffer, BUFSIZ);
-	while(charCount > 0) { //copies the directory or file
-		if(write(fout, buffer, charCount) != charCount) {
-			printf("CAN NOT WRTIE TO DESTINATION\n");
-			exit(EXIT_FAILURE);
-		}
-		if(charCount == -1) {
-			printf("CAN NOT READ FROM SOURCE\n");
-			exit(EXIT_FAILURE);			
-		}
-	}
-	
-	if(close(fin) == -1) {
-		printf("CAN NOT CLOSE SOURCE\n");
-		exit(EXIT_FAILURE);		
-	}
-	if(close(fout) == -1) {
-		printf("CAN NOT CLOSE DESTINATION\n");
-		exit(EXIT_FAILURE);			
-	}
-	return 1;
-	*******************************************************/
 }
+/* Function to get the name of the file or directory */
+void getName(char *bf, char *name)   
+{   
+    int i,n, j;   
+    n = strlen(bf);  
+    for(i = n - 1; i >=0 ; i--){   
+        if(bf[i]=='/'){   
+            break;   
+        }   
+    }   
+    for(i++, j = 0; i < n; i++, j++)   
+        name[j] = bf[i];   
+    name[j] = '\0';   
+}  
 
 void recursion(const char *src, const char *dest){
-	char bffsrc[BUFSIZ]; /* Used to store the filepath of source */
-	char bffdest[BUFSIZ]; /* Used to store the filepath of destincation */
-	char name[BUFSIZ]; /* Used  for filename */
-	struct stat mode; 
-
-	int flag = dir(src); /* Create a flag to check directory/file */
-
+	char bffsrc[BUFSIZ], bffdest[BUFSIZ], name[BUFSIZ]; 
+	int flag = type(src); /* Create a flag to check directory/file */
 	strcpy(bffsrc, src);   /* Copy */
     strcpy(bffdest, dest);  /* Copy  */
-
-     if(flag == 0){ /* If flag === file */
-     	getName(bffsrc, name);  /* Get the file name */   
-     	strcat(bffdest, "/"); /* Append src to dest */
+    
+    /* If it's a regular file */
+    if(flag == 0){
+    	getName(bffsrc, name); /* Get the file name */
+    	strcat(bffdest, "/");
      	strcat(bffdest, name);    /* Append src to the end of dest */
      	copy(bffsrc, bffdest);   
      	return;
      }
+     /* If it's a directory */
      else if(flag == 1){
      	getName(bffsrc, name); /* Get directory name*/
-        strcat(bffdest, "/");  /* concatenates bffdest and "/" and stores result in bffdest*/
-        strcat(bffdest, name); /* concatenates bffdest and "name" and stores result in bffdest*/
+        strcat(bffdest, "/");  
+        strcat(bffdest, name); /* Append src to the end of dest */
 
-        if(strcmp(name, ".") ==0 || strcmp(name, "..") ==0 ){ /* Compares the strings */
+        if(strcmp(name, ".") ==0 || strcmp(name, "..") ==0 ){ 
         	return;
         }
-        if(stat(src, &mode) == -1){
-        	printf("error!\n");   
+    	
+    	struct stat old_mode; 
+
+        if(stat(src, &old_mode) == -1){
+        	printf("Error!\n");   
         	return;  
         }
-        mkdir(bffdest, mode.st_mode); 
-        chmod(bffdest, mode.st_mode); 
-	     
-	/* Magic */
-        DIR * pdir =  opendir(bffsrc);   
+   
+        mkdir(bffdest, old_mode.st_mode); /* Create destination dir */
+        chmod(bffdest, old_mode.st_mode); /* Change mode of destination dir */
+
+        DIR * pdir = opendir(bffsrc);   
         struct dirent * pdirent;   
 
         while(1){
@@ -183,64 +113,47 @@ void recursion(const char *src, const char *dest){
         		break;
         	}
         	else{
-        		strcpy(bffsrc, src);
+        		strcpy(bffsrc, src); /* Copy files */
                 strcat(bffsrc, "/");   
-                strcat(bffsrc, pdirent->d_name);   
-                copy(bffsrc, bffsrc); 
+                strcat(bffsrc, pdirent->d_name);    
+                mkdir(dest, old_mode.st_mode); 	/* Create directory if it doesnt exist */
+                mkdir(bffdest, old_mode.st_mode); 
+        		//chmod(bffdest, old_mode.st_mode); /*change mode of bfto  */
+                recursion(bffsrc, bffdest); 
         	}
         }
         closedir(pdir);
         return;
     }
-    else{
+    else
     	return;
+}
+int executecp(int argc, char*argv[]){    
+    char *src, *dest;
+
+    if(argc <3){
+    	printf("File Usage: %s source destination\n", argv[0]);
+    	printf("Recursive Usage: %s -R source destination\n", argv[0]);
+    	return 0;
     }
+    if(strncmp(argv[1], "-R", 5) != 0 || argc >4 ){
+    	printf("Usage: %s -R source destination\n", argv[0]);
+    	return 0;
+    }
+    if(strncmp(argv[1], "-R", 5) == 0){
+    	src = argv[2];
+        dest = argv[3];
+        recursion(src, dest);
+    }
+    else{
+        src = argv[1];
+        dest = argv[2];
+        copy(src, dest);
+    }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 3) {   
-        printf("usage: source destination \n ", argv[0]);   
-        return -1;   
-    }   
-    recursion(argv[1], argv[2]);  
-	return 0;			
-	
-	/************** Original Code ************************
-	char *src;
-	char *dest;
-		
-	if(strncmp(argv[1], "-R", 5) != 0) { //checks if there are too many args for recursion
-		if(argc > 4) {
-			printf("TOO MANY ARGUEMENTS CALLED FOR -R\n");
-			exit(EXIT_FAILURE);		
-		}
-	}
-	else if(strncmp(argv[1], "-R", 5) == 0) {
-		if(strcmp(argv[2], argv[3]) == 0) { //checks if src and dest are same
-			printf("SOURCE AND DESTINATION ARE THE SAME FILE\n");
-			printf("DIRECTORY CAN NOT BE COPIED\n");
-			exit(EXIT_FAILURE);
-		}
-		else {
-			src = argv[2];
-			dest = argv[3];
-			//recursion(src, dest);
-			printf("DIRECTORY COPIED\n");
-		}	
-	}
-	else {
-		if(strcmp(argv[1], argv[2]) == 0) { //checks if src and dest are same
-			printf("SOURCE AND DESTINATION ARE THE SAME FILE\n");
-			printf("FILE CAN NOT BE COPIED\n");
-			exit(EXIT_FAILURE);
-		}
-		else {
-			src = argv[1];
-			dest = argv[2];
-			copy(src, dest);
-			printf("FILE COPIED\n");
-		}
-	}
-	return 0;
-	**************************************/	
+    return executecp(argc, argv);
+
 }
