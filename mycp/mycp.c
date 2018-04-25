@@ -136,7 +136,7 @@ int executecp(int argc, char*argv[]){
     	printf("Recursive Usage: %s -R source destination\n", argv[0]);
     	return 0;
     }
-    if(strncmp(argv[1], "-R", 5) != 0 || argc >4 ){
+    if(strncmp(argv[1], "-R", 5) != 0 && argc >4 ){
     	printf("Usage: %s -R source destination\n", argv[0]);
     	return 0;
     }
