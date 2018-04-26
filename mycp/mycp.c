@@ -6,7 +6,7 @@
 #include<stdio.h>   
 #include<string.h>   
 
-/* Check if its a directory or a file */
+/* Check if its a directory or a file 
 int type(const char *path){   
     struct stat bf;   
     if(stat(path, &bf) == -1){ 
@@ -19,6 +19,7 @@ int type(const char *path){
     else   
         return 0;   
 }
+*/
 
 int copy(const char *src, const char *dest) {
 	int fin, fout, count;
@@ -71,12 +72,14 @@ void getName(char *bf, char *name)
 
 void recursion(const char *src, const char *dest){
 	char bffsrc[BUFSIZ], bffdest[BUFSIZ], name[BUFSIZ]; 
-	int flag = type(src); /* Create a flag to check directory/file */
+	//int flag = type(src); /* Create a flag to check directory/file */
 	strcpy(bffsrc, src);   /* Copy */
-    strcpy(bffdest, dest);  /* Copy  */
+    	strcpy(bffdest, dest);  /* Copy  */
+        struct stat mode; 
+
     
     /* If it's a regular file */
-    if(flag == 0){
+    if (S_ISREG(mode.st_mode)){
     	getName(bffsrc, name); /* Get the file name */
     	strcat(bffdest, "/");
      	strcat(bffdest, name);    /* Append src to the end of dest */
@@ -84,7 +87,7 @@ void recursion(const char *src, const char *dest){
      	return;
      }
      /* If it's a directory */
-     else if(flag == 1){
+     else if (S_ISDIR(mode.st_mode)){ 
      	getName(bffsrc, name); /* Get directory name*/
         strcat(bffdest, "/");  
         strcat(bffdest, name); /* Append src to the end of dest */
