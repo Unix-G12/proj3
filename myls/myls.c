@@ -55,12 +55,14 @@ int main_ls(char* cmd){
 	}
 	qsort(dirArray, count, sizeof(char*), compareLex);
 	if(!opt_l){
-		for(int i = 0; i < count; i++){
+		int i;
+		for(i = 0; i < count; i++){
 		printf("%s\n", dirArray[i]);
 		}
 	}
 	else{
-		for (int i = 0; i < count; i++) {
+		int i;
+		for (i = 0; i < count; i++) {
 		printStats(dir, dirArray[i]);
 		}
 	}
