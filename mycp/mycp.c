@@ -13,7 +13,7 @@ int type(const char *path){
         printf("dir(%s), stat(%s) error!\n",path, path);   
           return 0;   
     }   
-    if((S_ISREG & bf.st_mode) == S_ISDIR) {   
+    if((S_IFMT & bf.st_mode) == S_IFDIR) {   
         return 1;   
     }   
     else   
