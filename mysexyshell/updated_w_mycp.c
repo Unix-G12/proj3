@@ -124,10 +124,8 @@ void pwd() {
 /*******************************************************/
 //mycp
 /*******************************************************/
-int mycp(int argc, char *argv[]) {
-    return executecp(argc, argv);
-}
 /* Check if its a directory or a file */
+
 int type(const char *path){   
     struct stat bf;   
     if(stat(path, &bf) == -1){ 
@@ -190,21 +188,21 @@ void getName(char *bf, char *name)
 }
 void recursion(const char *src, const char *dest){
 	char bffsrc[BUFSIZ], bffdest[BUFSIZ], name[BUFSIZ]; 
-	int flag = type(src); /* Create a flag to check directory/file */
+	//int flag = type(src); /* Create a flag to check directory/file */
 	strcpy(bffsrc, src);   /* Copy */
-    strcpy(bffdest, dest);  /* Copy  */
+   	strcpy(bffdest, dest);  /* Copy  */
     
     /* If it's a regular file */
-    if(flag == 0){
-    	getName(bffsrc, name); /* Get the file name */
+ if (S_ISREG(mode.st_mode)){
+	getName(bffsrc, name); /* Get the file name */
     	strcat(bffdest, "/");
      	strcat(bffdest, name);    /* Append src to the end of dest */
      	copy(bffsrc, bffdest);   
      	return;
      }
      /* If it's a directory */
-     else if(flag == 1){
-     	getName(bffsrc, name); /* Get directory name*/
+ else if (S_ISDIR(mode.st_mode)){ 
+	getName(bffsrc, name); /* Get directory name*/
         strcat(bffdest, "/");  
         strcat(bffdest, name); /* Append src to the end of dest */
 
@@ -236,7 +234,7 @@ void recursion(const char *src, const char *dest){
                 strcat(bffsrc, pdirent->d_name);    
                 mkdir(dest, old_mode.st_mode); 	/* Create directory if it doesnt exist */
                 mkdir(bffdest, old_mode.st_mode); 
-        		//chmod(bffdest, old_mode.st_mode); /*change mode of bfto  */
+        	//chmod(bffdest, old_mode.st_mode); /*change mode of bfto  */
                 recursion(bffsrc, bffdest); 
         	}
         }
